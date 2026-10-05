@@ -1,6 +1,5 @@
-const CACHE = 'fittrack-v3.0.0';
-const ASSETS = ['./', './index.html', './manifest.json', './water.js', './extras.js'];
-
+const CACHE = 'fittrack-v3.0.1';
+const ASSETS = ['./', './index.html', './manifest.json', './water.js', './extras.js', './aifood.js'];
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
