@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#667eea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="FitTrack">
+<title>FitTrack — контроль похудения</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg1:#667eea; --bg2:#764ba2;
+  --card:#fff; --card2:#f7fafc;
+  --text:#2d3748; --muted:#718096;
+  --border:#e2e8f0; --primary:#667eea; --primary-d:#5568d3;
+  --success:#48bb78; --danger:#f56565; --warn:#ed8936;
+  --ai:#8b5cf6; --ai-d:#7c3aed;
+  --shadow:0 8px 24px rgba(0,0,0,.12);
+}
+[data-theme="dark"]{
+  --bg1:#1a202c; --bg2:#2d3748;
+  --card:#2d3748; --card2:#1a202c;
+  --text:#f7fafc; --muted:#a0aec0;
+  --border:#4a5568; --primary:#7c8bf0; --primary-d:#667eea;
+  --ai:#a78bfa; --ai-d:#8b5cf6;
+  --shadow:0 8px 24px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:linear-gradient(160deg,var(--bg1),var(--bg2)) fixed;
+  color:var(--text); min-height:100vh; padding-bottom:80px;
+  -webkit-tap-highlight-color:transparent;
+}
+header{
+  max-width:900px;margin:0 auto;padding:16px 16px 8px;
+  display:flex;align-items:center;gap:10px;color:#fff;
+}
+header h1{font-size:22px;flex:1;text-shadow:0 2px 6px rgba(0,0,0,.25)}
+header button{
+  background:rgba(255,255,255,.2);color:#fff;border:0;
+  width:40px;height:40px;border-radius:12px;font-size:18px;
+  cursor:pointer;backdrop-filter:blur(8px);
+}
+header button:hover{background:rgba(255,255,255,.35)}
+#installBtn{width:auto;padding:0 14px;font-size:14px;font-weight:600}
+
+nav.tabs{
+  max-width:900px;margin:0 auto;padding:0 16px 12px;
+  display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;
+}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{
+  background:rgba(255,255,255,.15);color:#fff;border:0;
+  padding:10px 16px;border-radius:12px;font-size:14px;
+  font-weight:500;cursor:pointer;white-space:nowrap;
+  backdrop-filter:blur(8px);transition:all .2s;
+}
+nav.tabs button:hover{background:rgba(255,255,255,.25)}
+nav.tabs button.active{background:#fff;color:var(--primary);font-weight:700}
+
+main{max-width:900px;margin:0 auto;padding:0 16px}
+.tab{display:none;animation:fade .25s ease}
+.tab.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+
+.card{
+  background:var(--card);border-radius:16px;padding:20px;
+  margin-bottom:16px;box-shadow:var(--shadow);
+}
+.card h2{font-size:16px;margin-bottom:14px;color:var(--text);display:flex;align-items:center;gap:8px}
+.card h2 small{font-size:12px;color:var(--muted);font-weight:400;margin-left:auto}
+
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.row>*{flex:1;min-width:0}
+input,select,textarea,button{font-family:inherit;font-size:15px}
+input,select,textarea{
+  padding:11px 14px;border-radius:10px;border:2px solid var(--border);
+  background:var(--card2);color:var(--text);outline:none;transition:border .15s;
+  width:100%;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--primary)}
+textarea{resize:vertical;min-height:80px;font-family:ui-monospace,monospace;font-size:13px}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+
+button.btn{
+  background:var(--primary);color:#fff;border:0;padding:11px 18px;
+  border-radius:10px;font-weight:600;cursor:pointer;transition:all .15s;
+  white-space:nowrap;
+}
+button.btn:hover{background:var(--primary-d);transform:translateY(-1px)}
+button.btn.sec{background:var(--border);color:var(--text)}
+button.btn.sec:hover{background:var(--muted);color:#fff}
+button.btn.danger{background:var(--danger)}
+button.btn.danger:hover{background:#e53e3e}
+button.btn.ai{background:linear-gradient(135deg,var(--ai),var(--ai-d))}
+button.btn.ai:hover{filter:brightness(1.1)}
+button.btn.block{width:100%;margin-top:6px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.stat{background:var(--card2);padding:14px;border-radius:12px;text-align:center}
+.stat .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.stat .val{font-size:20px;font-weight:700;margin-top:4px}
+.val.good{color:var(--success)} .val.warn{color:var(--warn)} .val.bad{color:var(--danger)}
+
+.progress{background:var(--border);border-radius:999px;height:22px;overflow:hidden;margin-top:14px}
+.progress>div{
+  height:100%;background:linear-gradient(90deg,var(--success),#38a169);
+  transition:width .5s ease;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:11px;font-weight:700;
+}
+
+canvas.chart{width:100%;height:240px;display:block}
+
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 6px;text-align:left;border-bottom:1px solid var(--border);font-size:14px}
+th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+tr:last-child td{border-bottom:0}
+.down{color:var(--success);font-weight:600}
+.up{color:var(--danger);font-weight:600}
+.empty{text-align:center;color:var(--muted);padding:24px;font-style:italic}
+.del{background:none;border:0;color:var(--danger);cursor:pointer;font-size:16px;padding:4px 8px}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
+  background:#2d3748;color:#fff;padding:12px 20px;border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.3);font-size:14px;font-weight:500;
+  opacity:0;transition:all .3s;z-index:999;pointer-events:none;max-width:90vw;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.ok{background:var(--success)}
+.toast.err{background:var(--danger)}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chip{
+  padding:6px 12px;border-radius:999px;background:var(--card2);
+  border:2px solid transparent;color:var(--muted);font-size:13px;
+  cursor:pointer;font-weight:500;
+}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+.sync-status{
+  display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;
+  background:var(--card2);font-size:13px;margin-bottom:10px;
+}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.dot.on{background:var(--success);box-shadow:0 0 8px var(--success)}
+.dot.err{background:var(--danger)}
+.dot.sync{background:var(--warn);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.4}}
+
+details{border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:10px}
+details summary{cursor:pointer;font-weight:600;font-size:14px;user-select:none}
+details[open] summary{margin-bottom:12px}
+.hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px}
+.hint b{color:var(--text)}
+
+.insight{
+  padding:14px 16px;border-radius:12px;margin-bottom:10px;
+  border-left:4px solid var(--muted);background:var(--card2);
+  display:flex;gap:12px;align-items:flex-start;
+}
+.insight .icon{font-size:22px;flex-shrink:0;line-height:1}
+.insight .body{flex:1}
+.insight h4{font-size:14px;margin-bottom:4px;color:var(--text)}
+.insight p{font-size:13px;color:var(--muted);line-height:1.55}
+.insight.good{border-left-color:var(--success)}
+.insight.warn{border-left-color:var(--warn)}
+.insight.bad{border-left-color:var(--danger)}
+.insight.info{border-left-color:var(--primary)}
+.insight.ai{border-left-color:var(--ai)}
+
+.ai-output{
+  background:var(--card2);padding:16px;border-radius:12px;
+  font-size:14px;line-height:1.65;white-space:pre-wrap;
+  border:1px dashed var(--border);min-height:60px;
+}
+.ai-output h3{font-size:15px;margin:12px 0 6px;color:var(--text)}
+.ai-output h3:first-child{margin-top:0}
+.ai-output ul{margin:6px 0 6px 20px}
+.ai-output li{margin-bottom:4px}
+.ai-output strong{color:var(--text)}
+.ai-badge{
+  display:inline-block;background:linear-gradient(135deg,var(--ai),var(--ai-d));
+  color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;
+  text-transform:uppercase;letter-spacing:.5px;vertical-align:middle;margin-left:6px;
+}
+.metric-bar{
+  display:flex;align-items:center;gap:10px;padding:10px 0;
+  border-bottom:1px solid var(--border);font-size:13px;
+}
+.metric-bar:last-child{border-bottom:0}
+.metric-bar .name{flex:0 0 110px;color:var(--muted)}
+.metric-bar .track{flex:1;height:8px;background:var(--border);border-radius:999px;overflow:hidden}
+.metric-bar .fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--ai));border-radius:999px;transition:width .4s}
+.metric-bar .val{flex:0 0 auto;font-weight:700;min-width:70px;text-align:right}
+.spinner{
+  display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;
+  vertical-align:-2px;margin-right:6px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){
+  .card{padding:16px;border-radius:14px}
+  .stat .val{font-size:18px}
+  canvas.chart{height:200px}
+  .metric-bar .name{flex-basis:90px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎯 FitTrack</h1>
+  <button id="installBtn" hidden title="Установить приложение">Установить</button>
+  <button id="themeBtn" title="Сменить тему">🌙</button>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="dashboard" class="active">📊 Обзор</button>
+  <button data-tab="ai">🤖 ИИ</button>
+  <button data-tab="weight">⚖️ Вес</button>
+  <button data-tab="measure">📏 Замеры</button>
+  <button data-tab="calories">🍽️ Калории</button>
+  <button data-tab="settings">⚙️ Настройки</button>
+</nav>
+
+<main>
+
+<section id="tab-dashboard" class="tab active">
+  <div class="card">
+    <h2>📊 Статистика</h2>
+    <div class="stats" id="dashStats"></div>
+    <div class="progress"><div id="dashProgress" style="width:0%"></div></div>
+  </div>
+  <div class="card">
+    <h2>⚡ Быстрая запись веса</h2>
+    <div class="row">
+      <input type="number" id="quickWeight" placeholder="Вес, кг" step="0.1" inputmode="decimal">
+      <button class="btn" onclick="quickAddWeight()" style="flex:0 0 auto">Записать</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>📈 Динамика веса <small id="dashRange">все время</small></h2>
+    <div class="chips" id="rangeChips">
+      <div class="chip active" data-range="all">Всё</div>
+      <div class="chip" data-range="30">30 дней</div>
+      <div class="chip" data-range="90">90 дней</div>
+    </div>
+    <canvas id="dashChart" class="chart"></canvas>
+  </div>
+  <div class="card">
+    <h2>🍽️ Калории сегодня <small id="dashCalDate"></small></h2>
+    <div id="dashCalBody"></div>
+  </div>
+</section>
+
+<section id="tab-ai" class="tab">
+  <div class="card">
+    <h2>🤖 Быстрая сводка <span class="ai-badge">AI</span></h2>
+    <div id="aiSummary"></div>
+  </div>
+  <div class="card">
+    <h2>🔍 Умный анализ паттернов</h2>
+    <div id="aiInsights"></div>
+  </div>
+  <div class="card">
+    <h2>📐 Метрики здоровья</h2>
+    <div id="aiMetrics"></div>
+  </div>
+  <div class="card">
+    <h2>🎯 Прогноз достижения цели</h2>
+    <div id="aiPrediction"></div>
+  </div>
+  <div class="card">
+    <h2>💬 Разбор от LLM <span class="ai-badge">GPT</span></h2>
+    <div class="hint" style="margin-top:0;margin-bottom:12px">
+      Подключите OpenAI-совместимый API (OpenAI, Groq, OpenRouter, DeepSeek). Ключ хранится только в вашем браузере.
+      Настройка — во вкладке <b>⚙️ Настройки → ИИ-помощник</b>.
+    </div>
+    <div id="aiLLMStatus"></div>
+    <div class="row" style="margin-top:10px">
+      <select id="aiQuestionType">
+        <option value="review">Общий разбор прогресса</option>
+        <option value="plateau">Что делать с плато?</option>
+        <option value="motivation">Мотивация и поддержка</option>
+        <option value="plan">Скорректировать план питания</option>
+        <option value="custom">Свой вопрос…</option>
+      </select>
+    </div>
+    <div class="row" id="aiCustomRow" style="display:none">
+      <input id="aiCustomQ" placeholder="Ваш вопрос ИИ…">
+    </div>
+    <button class="btn ai block" id="aiAskBtn" onclick="askAI()">✨ Получить разбор от ИИ</button>
+    <div class="ai-output" id="aiOutput" style="margin-top:14px">Здесь появится персональный анализ. Нажмите кнопку выше.</div>
+  </div>
+</section>
+
+<section id="tab-weight" class="tab">
+  <div class="card">
+    <h2>➕ Добавить взвешивание</h2>
+    <div class="row">
+      <input type="date" id="wDate">
+      <input type="number" id="wWeight" placeholder="Вес, кг" step="0.1" inputmode="decimal">
+    </div>
+    <button class="btn block" onclick="addWeight()">Добавить</button>
+  </div>
+  <div class="card">
+    <h2>📈 График</h2>
+    <canvas id="weightChart" class="chart"></canvas>
+  </div>
+  <div class="card">
+    <h2>📋 История <small id="wCount"></small></h2>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Дата</th><th>Вес</th><th>Δ</th><th></th></tr></thead>
+        <tbody id="weightList"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="tab-measure" class="tab">
+  <div class="card">
+    <h2>➕ Добавить замеры</h2>
+    <div class="row"><input type="date" id="mDate"></div>
+    <div class="row">
+      <div><label>Талия, см</label><input type="number" id="mWaist" step="0.1" inputmode="decimal"></div>
+      <div><label>Бёдра, см</label><input type="number" id="mHips" step="0.1" inputmode="decimal"></div>
+    </div>
+    <div class="row">
+      <div><label>Грудь, см</label><input type="number" id="mChest" step="0.1" inputmode="decimal"></div>
+      <div><label>Рука, см</label><input type="number" id="mArm" step="0.1" inputmode="decimal"></div>
+    </div>
+    <div class="row">
+      <div><label>Бедро, см</label><input type="number" id="mThigh" step="0.1" inputmode="decimal"></div>
+      <div><label>Шея, см</label><input type="number" id="mNeck" step="0.1" inputmode="decimal"></div>
+    </div>
+    <button class="btn block" onclick="addMeasurement()">Сохранить замеры</button>
+  </div>
+  <div class="card">
+    <h2>📈 График замеров</h2>
+    <div class="chips" id="metricChips">
+      <div class="chip active" data-metric="waist">Талия</div>
+      <div class="chip" data-metric="hips">Бёдра</div>
+      <div class="chip" data-metric="chest">Грудь</div>
+      <div class="chip" data-metric="arm">Рука</div>
+      <div class="chip" data-metric="thigh">Бедро</div>
+      <div class="chip" data-metric="neck">Шея</div>
+    </div>
+    <canvas id="measureChart" class="chart"></canvas>
+  </div>
+  <div class="card">
+    <h2>📋 История замеров</h2>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Дата</th><th>Талия</th><th>Бёдра</th><th>Грудь</th><th>Рука</th><th>Бедро</th><th>Шея</th><th></th>
+        </tr></thead>
+        <tbody id="measureList"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="tab-calories" class="tab">
+  <div class="card">
+    <h2>🍽️ Дневник питания</h2>
+    <div class="row"><input type="date" id="cDate"></div>
+    <div id="calGoalView"></div>
+    <div class="progress" style="margin-bottom:14px"><div id="calProgress" style="width:0%"></div></div>
+    <div class="row">
+      <input id="cName" placeholder="Блюдо" style="flex:2">
+      <input type="number" id="cKcal" placeholder="ккал" inputmode="numeric" style="flex:1">
+    </div>
+    <button class="btn block" onclick="addMeal()">Добавить приём пищи</button>
+    <div id="calList" style="margin-top:14px"></div>
+  </div>
+  <div class="card">
+    <h2>📊 Калории за 7 дней</h2>
+    <canvas id="calChart" class="chart"></canvas>
+  </div>
+</section>
+
+<section id="tab-settings" class="tab">
+  <div class="card">
+    <h2>🎯 Профиль и цель</h2>
+    <div class="row">
+      <div><label>Начальный вес, кг</label><input type="number" id="sStart" step="0.1" inputmode="decimal"></div>
+      <div><label>Целевой вес, кг</label><input type="number" id="sTarget" step="0.1" inputmode="decimal"></div>
+    </div>
+    <div class="row">
+      <div><label>Рост, см</label><input type="number" id="sHeight" inputmode="numeric"></div>
+      <div><label>Возраст</label><input type="number" id="sAge" inputmode="numeric"></div>
+    </div>
+    <div class="row">
+      <div><label>Пол</label>
+        <select id="sGender"><option value="f">Женский</option><option value="m">Мужской</option></select>
+      </div>
+      <div><label>Активность</label>
+        <select id="sActivity">
+          <option value="1.2">Минимальная</option>
+          <option value="1.375">Слабая</option>
+          <option value="1.55">Средняя</option>
+          <option value="1.725">Высокая</option>
+          <option value="1.9">Очень высокая</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn block" onclick="saveProfile()">Сохранить</button>
+    <div id="bmrInfo" class="hint"></div>
+  </div>
+
+  <div class="card">
+    <h2>🤖 ИИ-помощник</h2>
+    <div class="hint" style="margin-top:0">
+      Работает с любым OpenAI-совместимым API. Ключ хранится только в браузере.
+    </div>
+    <div class="row" style="margin-top:12px">
+      <div><label>Провайдер</label>
+        <select id="llmPreset" onchange="applyLLMPreset()">
+          <option value="openai">OpenAI</option>
+          <option value="groq">Groq (бесплатно)</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="deepseek">DeepSeek</option>
+          <option value="custom">Свой endpoint</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>Endpoint</label><input id="llmEndpoint" placeholder="https://api.openai.com/v1"></div>
+    </div>
+    <div class="row">
+      <div><label>Модель</label><input id="llmModel" placeholder="gpt-4o-mini"></div>
+    </div>
+    <div class="row">
+      <div><label>API-ключ</label><input id="llmKey" type="password" placeholder="sk-..."></div>
+    </div>
+    <button class="btn ai block" onclick="saveLLM()">💾 Сохранить настройки ИИ</button>
+    <div class="hint">
+      <b>Где взять бесплатно:</b><br>
+      • <b>Groq</b> — console.groq.com/keys (llama-3.3-70b-versatile)<br>
+      • <b>OpenRouter</b> — openrouter.ai/keys (есть бесплатные модели)<br>
+      • <b>DeepSeek</b> — platform.deepseek.com (очень дёшево)<br>
+      • <b>OpenAI</b> — platform.openai.com (платно)
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔔 Напоминания</h2>
+    <div class="sync-status"><div class="dot" id="notifDot"></div><span id="notifText">Разрешение не запрошено</span></div>
+    <div class="row">
+      <div><label>Время напоминания</label><input type="time" id="notifTime" value="09:00"></div>
+    </div>
+    <button class="btn block sec" onclick="requestNotif()">Разрешить уведомления</button>
+    <button class="btn block" onclick="toggleNotif()" id="notifToggleBtn">Включить напоминания</button>
+  </div>
+
+  <div class="card">
+    <h2>☁️ Синхронизация (Firebase)</h2>
+    <div class="sync-status"><div class="dot" id="syncDot"></div><span id="syncText">Не подключено</span></div>
+    <details>
+      <summary>Как настроить</summary>
+      <div class="hint">
+        1. <b>console.firebase.google.com</b> → создать проект<br>
+        2. Authentication → Email/Password → включить<br>
+        3. Firestore Database → создать<br>
+        4. Правила: <code>allow read, write: if request.auth != null && request.auth.uid == resource.data.uid;</code><br>
+        5. Настройки проекта → Web app → скопировать <code>firebaseConfig</code>
+      </div>
+    </details>
+    <textarea id="fbConfig" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea>
+    <div class="row">
+      <input id="fbEmail" type="email" placeholder="Email">
+      <input id="fbPass" type="password" placeholder="Пароль (мин. 6)">
+    </div>
+    <div class="row">
+      <button class="btn" onclick="fbLogin()">Войти / Создать</button>
+      <button class="btn sec" onclick="fbLogout()">Выйти</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💾 Данные</h2>
+    <div class="row">
+      <button class="btn sec" onclick="exportData()">📤 Экспорт JSON</button>
+      <button class="btn sec" onclick="document.getElementById('impFile').click()">📥 Импорт</button>
+    </div>
+    <input type="file" id="impFile" accept=".json" hidden onchange="importData(event)">
+    <button class="btn danger block" onclick="clearAll()">🗑️ Удалить все данные</button>
+  </div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY = 'fittrack_v2';
+const ACTIVITY_LABELS = {1.2:'мин.',1.375:'слабая',1.55:'средняя',1.725:'высокая',1.9:'оч.высокая'};
+
+function emptyData(){
+  return {
+    profile:{start:null,target:null,height:null,age:null,gender:'f',activity:1.375,calGoal:null},
+    weights:[], measurements:[], meals:[],
+    settings:{theme:'light',notifEnabled:false,notifTime:'09:00',lastNotif:null},
+    sync:{config:null,email:null,uid:null,lastSync:null},
+    llm:{endpoint:'https://api.openai.com/v1',model:'gpt-4o-mini',key:'',preset:'openai'},
+    meta:{createdAt:Date.now()}
+  };
+}
+let data = emptyData();
+let syncTimer = null;
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      data = Object.assign(emptyData(), parsed);
+      data.profile = Object.assign(emptyData().profile, parsed.profile||{});
+      data.settings = Object.assign(emptyData().settings, parsed.settings||{});
+      data.sync = Object.assign(emptyData().sync, parsed.sync||{});
+      data.llm = Object.assign(emptyData().llm, parsed.llm||{});
+    }
+  }catch(e){ console.warn('load error', e); }
+}
+function save(skipSync){
+  data.meta.updatedAt = Date.now();
+  localStorage.setItem(KEY, JSON.stringify(data));
+  if(!skipSync) scheduleSync();
+}
+
+const $ = id => document.getElementById(id);
+const todayISO = () => new Date().toISOString().slice(0,10);
+function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}.${m}.${y.slice(2)}`; }
+function toast(msg, type=''){
+  const t = $('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  clearTimeout(t._t); t._t = setTimeout(()=>t.className='toast', 2400);
+}
+function num(v){ const n = parseFloat(v); return isNaN(n)?null:n; }
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
+
+document.querySelectorAll('#tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-'+btn.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    setTimeout(redrawAll, 50);
+  });
+});
+function applyTheme(){
+  document.documentElement.dataset.theme = data.settings.theme;
+  $('themeBtn').textContent = data.settings.theme === 'dark' ? '☀️' : '🌙';
+}
+$('themeBtn').addEventListener('click', ()=>{
+  data.settings.theme = data.settings.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(); save(); renderCharts();
+});
+
+function addWeight(){
+  const date = $('wDate').value;
+  const weight = num($('wWeight').value);
+  if(!date || weight === null) return toast('Заполните дату и вес','err');
+  if(weight < 20 || weight > 400) return toast('Проверьте вес','err');
+  data.weights = data.weights.filter(e => e.date !== date);
+  data.weights.push({date, weight});
+  data.weights.sort((a,b)=>a.date.localeCompare(b.date));
+  save(); $('wWeight').value = ''; renderAll(); toast('Вес записан','ok');
+}
+function quickAddWeight(){
+  const w = num($('quickWeight').value);
+  if(w === null) return toast('Введите вес','err');
+  const date = todayISO();
+  data.weights = data.weights.filter(e => e.date !== date);
+  data.weights.push({date, weight:w});
+  data.weights.sort((a,b)=>a.date.localeCompare(b.date));
+  save(); $('quickWeight').value = ''; renderAll(); toast('Вес записан','ok');
+}
+function deleteWeight(date){
+  if(!confirm('Удалить запись за '+fmtDate(date)+'?')) return;
+  data.weights = data.weights.filter(e=>e.date!==date);
+  save(); renderAll();
+}
+function addMeasurement(){
+  const date = $('mDate').value;
+  if(!date) return toast('Укажите дату','err');
+  const m = {date};
+  ['waist','hips','chest','arm','thigh','neck'].forEach(k=>{
+    const v = num($('m'+k.charAt(0).toUpperCase()+k.slice(1)).value);
+    if(v !== null) m[k] = v;
+  });
+  if(Object.keys(m).length <= 1) return toast('Заполните хотя бы одно поле','err');
+  data.measurements = data.measurements.filter(e => e.date !== date);
+  data.measurements.push(m);
+  data.measurements.sort((a,b)=>a.date.localeCompare(b.date));
+  save();
+  ['mWaist','mHips','mChest','mArm','mThigh','mNeck'].forEach(id=>$(id).value='');
+  renderAll(); toast('Замеры сохранены','ok');
+}
+function deleteMeasurement(date){
+  if(!confirm('Удалить замеры за '+fmtDate(date)+'?')) return;
+  data.measurements = data.measurements.filter(e=>e.date!==date);
+  save(); renderAll();
+}
+function addMeal(){
+  const date = $('cDate').value;
+  const name = $('cName').value.trim();
+  const kcal = num($('cKcal').value);
+  if(!date) return toast('Укажите дату','err');
+  if(!name) return toast('Введите название','err');
+  if(kcal === null || kcal < 0) return toast('Введите калории','err');
+  data.meals.push({id:Date.now()+'_'+Math.random().toString(36).slice(2,6),date,name,kcal,time:new Date().toTimeString().slice(0,5)});
+  save(); $('cName').value = ''; $('cKcal').value = ''; renderAll(); toast('Добавлено','ok');
+}
+function deleteMeal(id){
+  data.meals = data.meals.filter(m=>m.id!==id);
+  save(); renderAll();
+}
+function kcalForDate(date){ return data.meals.filter(m=>m.date===date).reduce((s,m)=>s+(m.kcal||0),0); }
+
+function saveProfile(){
+  data.profile.start = num($('sStart').value);
+  data.profile.target = num($('sTarget').value);
+  data.profile.height = num($('sHeight').value);
+  data.profile.age = num($('sAge').value);
+  data.profile.gender = $('sGender').value;
+  data.profile.activity = parseFloat($('sActivity').value);
+  save(); renderAll(); toast('Профиль сохранён','ok');
+}
+function calcBMR(){
+  const p = data.profile;
+  const w = currentWeight() ?? p.start;
+  if(!w || !p.height || !p.age) return null;
+  const base = 10*w + 6.25*p.height - 5*p.age;
+  return p.gender==='m' ? base + 5 : base - 161;
+}
+function calcTDEE(){
+  const bmr = calcBMR();
+  if(bmr === null) return null;
+  return bmr * (data.profile.activity||1.375);
+}
+function currentWeight(){ return data.weights.length ? data.weights[data.weights.length-1].weight : null; }
+
+function getStats(){
+  if(!data.weights.length) return null;
+  const current = currentWeight();
+  const first = data.weights[0].weight;
+  const start = data.profile.start ?? first;
+  const target = data.profile.target;
+  const lost = +(start-current).toFixed(1);
+  const total = target!=null ? +(start-target).toFixed(1) : null;
+  const remaining = target!=null ? +(current-target).toFixed(1) : null;
+  const progress = (total && total>0) ? Math.max(0, Math.min(100, (lost/total)*100)) : 0;
+  let bmi = null;
+  if(data.profile.height && current){
+    const h = data.profile.height/100;
+    bmi = +(current/(h*h)).toFixed(1);
+  }
+  return {current, first, start, target, lost, total, remaining, progress, bmi, count:data.weights.length};
+}
+function bmiCat(bmi){
+  if(bmi===null) return ['—',''];
+  if(bmi<18.5) return ['Недостаток','warn'];
+  if(bmi<25) return ['Норма','good'];
+  if(bmi<30) return ['Избыток','warn'];
+  return ['Ожирение','bad'];
+}
+
+function linReg(points){
+  const n = points.length;
+  if(n < 2) return null;
+  const sumX = points.reduce((s,p)=>s+p.x,0);
+  const sumY = points.reduce((s,p)=>s+p.y,0);
+  const sumXY = points.reduce((s,p)=>s+p.x*p.y,0);
+  const sumX2 = points.reduce((s,p)=>s+p.x*p.x,0);
+  const denom = n*sumX2 - sumX*sumX;
+  if(denom === 0) return null;
+  const slope = (n*sumXY - sumX*sumY) / denom;
+  const intercept = (sumY - slope*sumX) / n;
+  const meanY = sumY / n;
+  const ssTot = points.reduce((s,p)=>s+Math.pow(p.y-meanY,2),0);
+  const ssRes = points.reduce((s,p)=>s+Math.pow(p.y-(slope*p.x+intercept),2),0);
+  const r2 = ssTot === 0 ? 1 : 1 - ssRes/ssTot;
+  return {slope, intercept, r2};
+}
+function pearson(xs, ys){
+  const n = Math.min(xs.length, ys.length);
+  if(n < 3) return null;
+  const mx = xs.reduce((a,b)=>a+b,0)/n;
+  const my = ys.reduce((a,b)=>a+b,0)/n;
+  let num_ = 0, dx = 0, dy = 0;
+  for(let i=0;i<n;i++){
+    const a = xs[i]-mx, b = ys[i]-my;
+    num_ += a*b; dx += a*a; dy += b*b;
+  }
+  if(dx === 0 || dy === 0) return null;
+  return num_ / Math.sqrt(dx*dy);
+}
+function analyzeWeightTrend(days){
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-days);
+  const cutoffISO = cutoff.toISOString().slice(0,10);
+  const arr = data.weights.filter(e=>e.date>=cutoffISO);
+  if(arr.length < 3) return null;
+  const base = arr[0].date;
+  const pts = arr.map(e=>({x:daysBetween(base, e.date), y:e.weight}));
+  const reg = linReg(pts);
+  if(!reg) return null;
+  return {slopePerDay: reg.slope, slopePerWeek: reg.slope*7, r2: reg.r2, points: arr.length, firstWeight: arr[0].weight, lastWeight: arr[arr.length-1].weight};
+}
+function detectPlateau(){
+  const last14 = analyzeWeightTrend(14);
+  const last30 = analyzeWeightTrend(30);
+  if(!last14 && !last30) return null;
+  const ref = last30 || last14;
+  if(Math.abs(ref.slopePerWeek) < 0.15){
+    return {type:'plateau', weeks:Math.round((last30?30:14)/7), change:ref.slopePerWeek};
+  }
+  return null;
+}
+function predictGoal(){
+  const s = getStats();
+  if(!s || s.target === null) return null;
+  const trend = analyzeWeightTrend(30) || analyzeWeightTrend(60) || analyzeWeightTrend(14);
+  if(!trend || trend.slopePerDay >= -0.01) return {reachable:false, reason:'no-trend'};
+  const remaining = s.current - s.target;
+  if(remaining <= 0) return {reachable:true, done:true};
+  const days = Math.round(remaining / (-trend.slopePerDay));
+  if(days > 1500 || !isFinite(days)) return {reachable:false, reason:'too-slow'};
+  const eta = new Date(); eta.setDate(eta.getDate()+days);
+  return {reachable:true, days, etaISO: eta.toISOString().slice(0,10), ratePerWeek: trend.slopePerWeek};
+}
+function calorieWeightCorrelation(){
+  const kcalByDate = {};
+  data.meals.forEach(m=>{ kcalByDate[m.date] = (kcalByDate[m.date]||0) + m.kcal; });
+  const xs = [], ys = [];
+  for(let i=0;i<data.weights.length-1;i++){
+    const d = data.weights[i].date;
+    const next = data.weights[i+1];
+    if(kcalByDate[d] != null){
+      xs.push(kcalByDate[d]);
+      ys.push(next.weight - data.weights[i].weight);
+    }
+  }
+  if(xs.length < 5) return null;
+  return pearson(xs, ys);
+}
+function calcStreak(){
+  if(!data.weights.length) return 0;
+  const dates = new Set(data.weights.map(e=>e.date));
+  let streak = 0;
+  const d = new Date();
+  if(!dates.has(d.toISOString().slice(0,10))) d.setDate(d.getDate()-1);
+  while(dates.has(d.toISOString().slice(0,10))){
+    streak++;
+    d.setDate(d.getDate()-1);
+  }
+  return streak;
+}
+function buildInsights(){
+  const out = [];
+  const s = getStats();
+  if(!s){
+    out.push({type:'info', icon:'👋', title:'Начните с первого взвешивания', text:'Добавьте вес на вкладке «Вес» или на главной. ИИ-аналитика включится автоматически.'});
+    return out;
+  }
+  const t7 = analyzeWeightTrend(7);
+  const t14 = analyzeWeightTrend(14);
+  const t30 = analyzeWeightTrend(30);
+  const t = t30 || t14 || t7;
+  if(t){
+    const w = t.slopePerWeek;
+    if(w <= -0.8){
+      out.push({type:'warn', icon:'⚡', title:'Слишком быстрый темп', text:`Вы теряете ${Math.abs(w).toFixed(2)} кг/нед. Здоровый темп — 0.5–1 кг/нед. Риск потери мышц и срыва. Увеличьте калории на 150–200 ккал.`});
+    } else if(w <= -0.5){
+      out.push({type:'good', icon:'🔥', title:'Отличный темп', text:`${Math.abs(w).toFixed(2)} кг/нед — идеальная скорость. Держите режим.`});
+    } else if(w <= -0.15){
+      out.push({type:'good', icon:'✅', title:'Устойчивое снижение', text:`Теряете ${Math.abs(w).toFixed(2)} кг/нед. Медленно, но стабильно — так и должно быть.`});
+    } else if(w < 0.15){
+      out.push({type:'warn', icon:'⏸️', title:'Плато', text:'Вес стоит на месте. Причины: адаптация метаболизма, недостаток сна или стресс. Попробуйте неделю на поддержке (TDEE), затем снова дефицит −300 ккал.'});
+    } else {
+      out.push({type:'bad', icon:'📈', title:'Вес растёт', text:`+${w.toFixed(2)} кг/нед. Проверьте: скрытые калории, размер порций, перекусы. Ведите дневник питания без пропусков неделю.`});
+    }
+  }
+  const streak = calcStreak();
+  if(streak >= 3){
+    out.push({type:'good', icon:'🔥', title:`Серия ${streak} дн.`, text:'Регулярность взвешиваний — ключ к результату. Продолжайте!'});
+  }
+  const p = predictGoal();
+  if(p && p.reachable && !p.done){
+    const months = Math.round(p.days/30);
+    if(p.days < 60){
+      out.push({type:'good', icon:'🎯', title:'Близко к цели', text:`При текущем темпе цель будет достигнута через ${p.days} дн. (≈ ${fmtDate(p.etaISO)}).`});
+    } else {
+      out.push({type:'info', icon:'📅', title:'Прогноз достижения цели', text:`≈ ${months} мес. до цели при темпе ${Math.abs(p.ratePerWeek).toFixed(2)} кг/нед.`});
+    }
+  }
+  const r = calorieWeightCorrelation();
+  if(r !== null){
+    if(Math.abs(r) > 0.4){
+      if(r < 0){
+        out.push({type:'info', icon:'📉', title:'Связь калорий и веса', text:`Чем меньше едите — тем больше теряете (r=${r.toFixed(2)}). Дневник питания работает.`});
+      } else {
+        out.push({type:'info', icon:'📊', title:'Связь калорий и веса', text:`Есть корреляция (r=${r.toFixed(2)}). Данных пока мало для точных выводов — ведите дневник ещё 1–2 недели.`});
+      }
+    } else {
+      out.push({type:'info', icon:'🧪', title:'Слабые данные', text:'Пока не видно чёткой связи калорий и веса. Ведите дневник питания минимум 2 недели.'});
+    }
+  } else {
+    out.push({type:'info', icon:'🍽️', title:'Заполните дневник калорий', text:'5+ дней питания дадут возможность найти корреляции.'});
+  }
+  if(s.bmi !== null){
+    const [name, cls] = bmiCat(s.bmi);
+    out.push({type:cls === 'good' ? 'good' : cls === 'bad' ? 'bad' : 'warn', icon:'📐', title:`ИМТ ${s.bmi} — ${name}`, text:'ИМТ — грубый показатель, но полезен для ориентира.'});
+  }
+  return out;
+}
+function renderAI(){
+  const s = getStats();
+  const el = $('aiSummary');
+  if(!s){
+    el.innerHTML = '<div class="empty">Нужны данные для анализа</div>';
+    return;
+  }
+  const t = analyzeWeightTrend(30) || analyzeWeightTrend(14) || analyzeWeightTrend(7);
+  const p = predictGoal();
+  const streak = calcStreak();
+  el.innerHTML = `
+    <div class="stats">
+      <div class="stat"><div class="lbl">Текущий</div><div class="val">${s.current} кг</div></div>
+      <div class="stat"><div class="lbl">Темп / нед</div><div class="val ${t && t.slopePerWeek < -0.15 ? 'good' : t && t.slopePerWeek > 0.15 ? 'bad' : 'warn'}">${t ? (t.slopePerWeek>0?'+':'') + t.slopePerWeek.toFixed(2) : '—'}</div></div>
+      <div class="stat"><div class="lbl">Прогресс</div><div class="val">${Math.round(s.progress)}%</div></div>
+      <div class="stat"><div class="lbl">Серия дней</div><div class="val ${streak>=3?'good':''}">${streak}</div></div>
+      ${p && p.reachable && !p.done ? `<div class="stat"><div class="lbl">До цели</div><div class="val">${p.days} дн.</div></div>` : ''}
+    </div>
+    ${t ? `<div class="hint">Качество тренда: R² = ${t.r2.toFixed(2)} ${t.r2 > 0.6 ? '— хорошее' : t.r2 > 0.3 ? '— среднее' : '— слабое'}</div>` : ''}
+  `;
+  const insights = buildInsights();
+  $('aiInsights').innerHTML = insights.length
+    ? insights.map(i=>`<div class="insight ${i.type}"><div class="icon">${i.icon}</div><div class="body"><h4>${escapeHtml(i.title)}</h4><p>${escapeHtml(i.text)}</p></div></div>`).join('')
+    : '<div class="empty">Добавьте больше данных</div>';
+  renderHealthMetrics();
+  renderPrediction();
+}
+function renderHealthMetrics(){
+  const el = $('aiMetrics');
+  const s = getStats();
+  if(!s){ el.innerHTML = '<div class="empty">Нужны данные</div>'; return; }
+  const bmr = calcBMR(), tdee = calcTDEE(), height = data.profile.height;
+  let wth = null;
+  if(data.measurements.length){
+    const last = [...data.measurements].reverse().find(m=>m.waist);
+    if(last && height) wth = +(last.waist / height).toFixed(3);
+  }
+  let whr = null;
+  if(data.measurements.length){
+    const last = [...data.measurements].reverse().find(m=>m.waist && m.hips);
+    if(last) whr = +(last.waist / last.hips).toFixed(2);
+  }
+  const items = [];
+  if(s.bmi !== null){
+    const [name, cls] = bmiCat(s.bmi);
+    const pos = Math.max(0, Math.min(100, ((s.bmi-15)/25)*100));
+    items.push({name:'ИМТ', display:`${s.bmi} · ${name}`, pos, cls});
+  }
+  if(bmr) items.push({name:'BMR', display:`${Math.round(bmr)} ккал`, pos:100, cls:''});
+  if(tdee) items.push({name:'Норма (дефицит)', display:`${Math.round(tdee-500)} ккал`, pos:100, cls:''});
+  if(wth !== null){
+    const cls = wth < 0.5 ? 'good' : wth < 0.6 ? 'warn' : 'bad';
+    const label = wth < 0.5 ? 'отлично' : wth < 0.6 ? 'повышено' : 'высокий риск';
+    items.push({name:'Талия/рост', display:`${wth} · ${label}`, pos:Math.min(100,(wth/0.8)*100), cls});
+  }
+  if(whr !== null){
+    const isM = data.profile.gender === 'm';
+    const healthy = isM ? 0.9 : 0.85;
+    const cls = whr < healthy ? 'good' : whr < healthy+0.1 ? 'warn' : 'bad';
+    const label = whr < healthy ? 'норма' : 'риск';
+    items.push({name:'Талия/бёдра', display:`${whr} · ${label}`, pos:Math.min(100,(whr/1.2)*100), cls});
+  }
+  if(!items.length){
+    el.innerHTML = '<div class="empty">Заполните профиль и добавьте замеры</div>';
+    return;
+  }
+  el.innerHTML = items.map(i=>`
+    <div class="metric-bar">
+      <div class="name">${i.name}</div>
+      <div class="track"><div class="fill" style="width:${i.pos}%"></div></div>
+      <div class="val ${i.cls}">${i.display}</div>
+    </div>
+  `).join('');
+}
+function renderPrediction(){
+  const el = $('aiPrediction');
+  const p = predictGoal();
+  const s = getStats();
+  if(!s || s.target == null){
+    el.innerHTML = '<div class="empty">Задайте целевой вес в Настройках</div>';
+    return;
+  }
+  if(s.current <= s.target){
+    el.innerHTML = '<div class="insight good"><div class="icon">🎉</div><div class="body"><h4>Цель достигнута!</h4><p>Поздравляем. Теперь важно удержать результат: держите TDEE и продолжайте взвешиваться 1–2 раза в неделю.</p></div></div>';
+    return;
+  }
+  if(!p || !p.reachable){
+    el.innerHTML = `<div class="insight warn"><div class="icon">🤔</div><div class="body"><h4>Пока не хватает данных</h4><p>Нужно минимум 3–4 недели взвешиваний. Текущий остаток до цели: ${s.remaining.toFixed(1)} кг.</p></div></div>`;
+    return;
+  }
+  if(p.done){
+    el.innerHTML = '<div class="insight good"><div class="icon">🎯</div><div class="body"><h4>Цель достигнута</h4><p>Отличная работа!</p></div></div>';
+    return;
+  }
+  const months = Math.floor(p.days/30);
+  const weeks = Math.floor((p.days%30)/7);
+  el.innerHTML = `
+    <div class="insight info">
+      <div class="icon">📅</div>
+      <div class="body">
+        <h4>Прогноз: ${fmtDate(p.etaISO)}</h4>
+        <p>При темпе <b>${Math.abs(p.ratePerWeek).toFixed(2)} кг/нед</b> цель будет достигнута через <b>${p.days} дн.</b> ≈ ${months} мес. ${weeks} нед.</p>
+        <p style="margin-top:8px">⚠️ Прогноз — не гарантия. Он предполагает, что вы сохраните текущий режим.</p>
+      </div>
+    </div>
+  `;
+}
+
+const LLM_PRESETS = {
+  openai: {endpoint:'https://api.openai.com/v1', model:'gpt-4o-mini'},
+  groq:   {endpoint:'https://api.groq.com/openai/v1', model:'llama-3.3-70b-versatile'},
+  openrouter:{endpoint:'https://openrouter.ai/api/v1', model:'meta-llama/llama-3.1-8b-instruct:free'},
+  deepseek:{endpoint:'https://api.deepseek.com/v1', model:'deepseek-chat'},
+  custom: {endpoint:'', model:''}
+};
+function applyLLMPreset(){
+  const preset = $('llmPreset').value;
+  const cfg = LLM_PRESETS[preset];
+  if(cfg && preset !== 'custom'){
+    $('llmEndpoint').value = cfg.endpoint;
+    $('llmModel').value = cfg.model;
+  }
+}
+function saveLLM(){
+  data.llm.preset = $('llmPreset').value;
+  data.llm.endpoint = $('llmEndpoint').value.trim().replace(/\/+$/,'');
+  data.llm.model = $('llmModel').value.trim();
+  data.llm.key = $('llmKey').value.trim();
+  save(); renderLLMStatus(); toast('Настройки ИИ сохранены','ok');
+}
+function renderLLMStatus(){
+  const el = $('aiLLMStatus');
+  const connected = data.llm.key && data.llm.endpoint && data.llm.model;
+  el.innerHTML = `<div class="sync-status"><div class="dot ${connected?'on':''}"></div>
+    <span>${connected ? `Готово: ${data.llm.model}` : 'ИИ не подключён — задайте ключ в Настройках'}</span></div>`;
+}
+function buildAIPayload(){
+  const s = getStats();
+  const t30 = analyzeWeightTrend(30);
+  const t14 = analyzeWeightTrend(14);
+  const streak = calcStreak();
+  const bmr = calcBMR(), tdee = calcTDEE();
+  const avgKcal7 = (()=>{
+    let sum=0, cnt=0;
+    for(let i=0;i<7;i++){
+      const d = new Date(); d.setDate(d.getDate()-i);
+      const iso = d.toISOString().slice(0,10);
+      const k = kcalForDate(iso);
+      if(k>0){ sum+=k; cnt++; }
+    }
+    return cnt ? Math.round(sum/cnt) : null;
+  })();
+  return {
+    profile:{gender:data.profile.gender==='m'?'мужской':'женский',age:data.profile.age,height:data.profile.height,startWeight:data.profile.start,targetWeight:data.profile.target,activity:ACTIVITY_LABELS[data.profile.activity]||null},
+    current:s?{weight:s.current,lostKg:s.lost,remainingKg:s.remaining,progressPercent:Math.round(s.progress),bmi:s.bmi}:null,
+    trends:{perWeek30d:t30?+t30.slopePerWeek.toFixed(2):null,perWeek14d:t14?+t14.slopePerWeek.toFixed(2):null},
+    calorieInfo:{bmr:bmr?Math.round(bmr):null,tdee:tdee?Math.round(tdee):null,avg7days:avgKcal7,deficit500:tdee?Math.round(tdee-500):null},
+    streakDays:streak,
+    recentWeights:data.weights.slice(-14),
+    measurements:data.measurements.slice(-5)
+  };
+}
+async function askAI(){
+  if(!data.llm.key || !data.llm.endpoint || !data.llm.model) return toast('Настройте ИИ в Настройках','err');
+  const btn = $('aiAskBtn'), out = $('aiOutput');
+  const qType = $('aiQuestionType').value, customQ = $('aiCustomQ').value.trim();
+  if(qType === 'custom' && !customQ) return toast('Введите вопрос','err');
+  const prompts = {
+    review:'Сделай разбор моего прогресса в похудении. Что идёт хорошо, что нужно скорректировать? Дай 3–5 конкретных рекомендаций.',
+    plateau:'Как видно по данным, у меня может быть плато. Что мне делать в ближайшие 2 недели? Дай конкретный план.',
+    motivation:'Посмотри на мой прогресс и дай мотивационную поддержку. Что я делаю правильно и почему стоит продолжать?',
+    plan:'Предложи корректировку плана питания и активности на 2 недели.',
+    custom:customQ
+  };
+  const payload = buildAIPayload();
+  const systemMsg = 'Ты — опытный нутрициолог и тренер. Отвечай по-русски, кратко. Опирайся ТОЛЬКО на данные. Формат: короткое резюме + 3–5 рекомендаций списком. Markdown.';
+  const userMsg = `Данные (JSON):\n${JSON.stringify(payload,null,2)}\n\nВопрос: ${prompts[qType]}`;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Думаю…';
+  out.textContent = 'Отправляю запрос…';
+  try{
+    const resp = await fetch(data.llm.endpoint + '/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + data.llm.key},
+      body: JSON.stringify({model:data.llm.model, messages:[{role:'system',content:systemMsg},{role:'user',content:userMsg}], temperature:0.6, max_tokens:900})
+    });
+    if(!resp.ok) throw new Error(`${resp.status}: ${(await resp.text()).slice(0,200)}`);
+    const json = await resp.json();
+    out.innerHTML = renderMarkdown(json.choices?.[0]?.message?.content || 'Пустой ответ');
+  }catch(e){
+    out.innerHTML = `<span style="color:var(--danger)">Ошибка: ${escapeHtml(e.message)}</span>
+      <div class="hint">Проверьте ключ, endpoint, модель и CORS у провайдера.</div>`;
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = '✨ Получить разбор от ИИ';
+  }
+}
+function renderMarkdown(md){
+  let html = escapeHtml(md);
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^# (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  const lines = html.split('\n');
+  const out = [];
+  let inUl = false;
+  for(const line of lines){
+    if(/^\s*[-•*]\s+/.test(line)){
+      if(!inUl){ out.push('<ul>'); inUl = true; }
+      out.push('<li>' + line.replace(/^\s*[-•*]\s+/, '') + '</li>');
+    } else {
+      if(inUl){ out.push('</ul>'); inUl = false; }
+      out.push(line);
+    }
+  }
+  if(inUl) out.push('</ul>');
+  return out.join('\n');
+}
+$('aiQuestionType').addEventListener('change', ()=>{
+  $('aiCustomRow').style.display = $('aiQuestionType').value === 'custom' ? '' : 'none';
+});
+
+function setupCanvas(canvas){
+  const dpr = window.devicePixelRatio||1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width*dpr;
+  canvas.height = rect.height*dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx, W:rect.width, H:rect.height};
+}
+function emptyChart(canvas, text='Нет данных'){
+  const {ctx,W,H} = setupCanvas(canvas);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--muted')||'#a0aec0';
+  ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(text, W/2, H/2);
+}
+function getCSS(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function drawLineChart(canvas, points, opts={}){
+  if(!points.length){ emptyChart(canvas, opts.emptyText); return; }
+  const {ctx,W,H} = setupCanvas(canvas);
+  ctx.clearRect(0,0,W,H);
+  const pad = {l:46,r:14,t:14,b:26};
+  const values = points.map(p=>p.y);
+  if(opts.goal!=null) values.push(opts.goal);
+  let min = Math.min(...values), max = Math.max(...values);
+  if(min===max){ min-=1; max+=1; }
+  const rng = max-min;
+  min -= rng*0.12; max += rng*0.12;
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+  const X = i => pad.l + (points.length===1 ? cw/2 : (i/(points.length-1))*cw);
+  const Y = v => pad.t + ch - ((v-min)/(max-min))*ch;
+  const muted = getCSS('--muted')||'#a0aec0';
+  const border = getCSS('--border')||'#e2e8f0';
+  ctx.strokeStyle = border; ctx.lineWidth = 1;
+  ctx.fillStyle = muted; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  for(let i=0;i<=4;i++){
+    const v = min + (max-min)*(i/4);
+    const y = Y(v);
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillText(v.toFixed(opts.decimals??1), pad.l-6, y+3);
+  }
+  if(opts.goal!=null){
+    const y = Y(opts.goal);
+    ctx.strokeStyle = getCSS('--success')||'#48bb78';
+    ctx.setLineDash([5,4]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  if(points.length>1){
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(points[0].y));
+    points.forEach((p,i)=>ctx.lineTo(X(i), Y(p.y)));
+    ctx.lineTo(X(points.length-1), pad.t+ch);
+    ctx.lineTo(X(0), pad.t+ch);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+    const base = opts.color || '#667eea';
+    grad.addColorStop(0, hexA(base, .35));
+    grad.addColorStop(1, hexA(base, .02));
+    ctx.fillStyle = grad; ctx.fill();
+  }
+  ctx.strokeStyle = opts.color || '#667eea';
+  ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.beginPath();
+  points.forEach((p,i)=>{ const x=X(i), y=Y(p.y); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+  ctx.stroke();
+  points.forEach((p,i)=>{
+    const x=X(i), y=Y(p.y);
+    ctx.beginPath(); ctx.arc(x,y,points.length>40?2:4,0,Math.PI*2);
+    ctx.fillStyle = getCSS('--card')||'#fff'; ctx.fill();
+    ctx.strokeStyle = opts.color||'#667eea'; ctx.lineWidth = 2; ctx.stroke();
+  });
+  ctx.fillStyle = muted; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  const showEvery = Math.max(1, Math.ceil(points.length/6));
+  points.forEach((p,i)=>{
+    if(i%showEvery===0 || i===points.length-1) ctx.fillText(p.x, X(i), H-8);
+  });
+}
+function hexA(hex, a){
+  const c = hex.replace('#','');
+  const r = parseInt(c.substring(0,2),16), g = parseInt(c.substring(2,4),16), b = parseInt(c.substring(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function drawBarChart(canvas, bars, opts={}){
+  if(!bars.length){ emptyChart(canvas, 'Нет данных'); return; }
+  const {ctx,W,H} = setupCanvas(canvas);
+  ctx.clearRect(0,0,W,H);
+  const pad = {l:46,r:14,t:14,b:28};
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+  const values = bars.map(b=>b.value);
+  if(opts.goal) values.push(opts.goal);
+  let max = Math.max(...values, 1);
+  max = Math.ceil(max*1.1);
+  const Y = v => pad.t + ch - (v/max)*ch;
+  const muted = getCSS('--muted')||'#a0aec0';
+  const border = getCSS('--border')||'#e2e8f0';
+  ctx.strokeStyle = border; ctx.fillStyle = muted;
+  ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  for(let i=0;i<=4;i++){
+    const v = max*(i/4);
+    const y = Y(v);
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillText(Math.round(v).toString(), pad.l-6, y+3);
+  }
+  const bw = cw/bars.length;
+  const barW = Math.max(4, Math.min(46, bw*0.7));
+  bars.forEach((b,i)=>{
+    const x = pad.l + bw*i + (bw-barW)/2;
+    const y = Y(b.value);
+    const over = opts.goal && b.value>opts.goal;
+    const grad = ctx.createLinearGradient(0,y,0,pad.t+ch);
+    if(over){ grad.addColorStop(0,'#fc8181'); grad.addColorStop(1,'#e53e3e'); }
+    else { grad.addColorStop(0,'#667eea'); grad.addColorStop(1,'#5568d3'); }
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    const r = Math.min(6, barW/2);
+    ctx.moveTo(x, y+r); ctx.arcTo(x, y, x+r, y, r);
+    ctx.lineTo(x+barW-r, y); ctx.arcTo(x+barW, y, x+barW, y+r, r);
+    ctx.lineTo(x+barW, pad.t+ch); ctx.lineTo(x, pad.t+ch);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = muted; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(b.label, x+barW/2, H-10);
+  });
+  if(opts.goal){
+    const y = Y(opts.goal);
+    ctx.strokeStyle = getCSS('--success')||'#48bb78';
+    ctx.setLineDash([5,4]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+let dashRange = 'all', measureMetric = 'waist';
+
+function renderDashboard(){
+  const s = getStats();
+  const el = $('dashStats'), prog = $('dashProgress');
+  if(!s){
+    el.innerHTML = '<div class="empty" style="grid-column:1/-1">Добавьте первое взвешивание</div>';
+    prog.style.width = '0%'; prog.textContent = '';
+  } else {
+    const lostClass = s.lost>0 ? 'good' : s.lost<0 ? 'bad' : '';
+    const bmiH = s.bmi!==null ? (()=>{ const [n,c]=bmiCat(s.bmi); return `<div class="stat"><div class="lbl">ИМТ</div><div class="val ${c}">${s.bmi}<div style="font-size:10px;font-weight:400;color:var(--muted)">${n}</div></div></div>`;})() : '';
+    el.innerHTML = `
+      <div class="stat"><div class="lbl">Текущий</div><div class="val">${s.current}<span style="font-size:12px"> кг</span></div></div>
+      <div class="stat"><div class="lbl">Сброшено</div><div class="val ${lostClass}">${s.lost>0?'−':s.lost<0?'+':''}${Math.abs(s.lost)}<span style="font-size:12px"> кг</span></div></div>
+      ${s.target!=null?`<div class="stat"><div class="lbl">Цель</div><div class="val">${s.target}<span style="font-size:12px"> кг</span></div></div>`:''}
+      ${s.remaining!=null?`<div class="stat"><div class="lbl">Осталось</div><div class="val">${s.remaining>0?s.remaining.toFixed(1):0}<span style="font-size:12px"> кг</span></div></div>`:''}
+      ${bmiH}
+      <div class="stat"><div class="lbl">Записей</div><div class="val">${s.count}</div></div>
+    `;
+    prog.style.width = s.progress+'%';
+    prog.textContent = s.progress>10 ? Math.round(s.progress)+'%' : '';
+  }
+  const today = todayISO();
+  $('dashCalDate').textContent = fmtDate(today);
+  const eaten = kcalForDate(today);
+  const goal = data.profile.calGoal || calcTDEE() || null;
+  const left = goal ? goal-eaten : null;
+  $('dashCalBody').innerHTML = `
+    <div class="stats">
+      <div class="stat"><div class="lbl">Съедено</div><div class="val">${eaten}<span style="font-size:12px"> ккал</span></div></div>
+      ${goal?`<div class="stat"><div class="lbl">Норма</div><div class="val">${Math.round(goal)}<span style="font-size:12px"> ккал</span></div></div>`:''}
+      ${left!==null?`<div class="stat"><div class="lbl">Осталось</div><div class="val ${left<0?'bad':'good'}">${left>=0?Math.round(left):'+'+Math.round(-left)}<span style="font-size:12px"> ккал</span></div></div>`:''}
+    </div>
+  `;
+}
+function renderWeight(){
+  const tbody = $('weightList');
+  const list = [...data.weights].reverse();
+  $('wCount').textContent = list.length ? `(${list.length})` : '';
+  if(!list.length){ tbody.innerHTML = '<tr><td colspan="4" class="empty">Пока нет записей</td></tr>'; return; }
+  tbody.innerHTML = list.map((e,i)=>{
+    const prev = list[i+1];
+    let d='—', c='';
+    if(prev){
+      const diff = +(e.weight - prev.weight).toFixed(1);
+      c = diff<0?'down':diff>0?'up':'';
+      d = diff>0?`+${diff}`:diff.toString();
+    }
+    return `<tr><td>${fmtDate(e.date)}</td><td><b>${e.weight}</b></td><td class="${c}">${d}</td>
+      <td style="text-align:right"><button class="del" onclick="deleteWeight('${e.date}')">✕</button></td></tr>`;
+  }).join('');
+}
+function renderMeasurements(){
+  const tbody = $('measureList');
+  const list = [...data.measurements].reverse();
+  if(!list.length){ tbody.innerHTML = '<tr><td colspan="8" class="empty">Пока нет замеров</td></tr>'; return; }
+  tbody.innerHTML = list.map(e=>`
+    <tr><td>${fmtDate(e.date)}</td>
+      ${['waist','hips','chest','arm','thigh','neck'].map(k=>`<td>${e[k]??'—'}</td>`).join('')}
+      <td style="text-align:right"><button class="del" onclick="deleteMeasurement('${e.date}')">✕</button></td>
+    </tr>`).join('');
+}
+function renderCalories(){
+  const date = $('cDate').value || todayISO();
+  const eaten = kcalForDate(date);
+  const goal = data.profile.calGoal || calcTDEE() || null;
+  $('calGoalView').innerHTML = goal
+    ? `<div class="stats" style="margin-bottom:10px">
+         <div class="stat"><div class="lbl">Съедено</div><div class="val">${eaten}</div></div>
+         <div class="stat"><div class="lbl">Норма</div><div class="val">${Math.round(goal)}</div></div>
+         <div class="stat"><div class="lbl">Осталось</div><div class="val ${goal-eaten<0?'bad':'good'}">${Math.round(goal-eaten)}</div></div>
+       </div>`
+    : `<div class="hint" style="margin-bottom:10px">Заполните профиль в Настройках</div>
+       <div class="stat" style="margin-bottom:10px"><div class="lbl">Съедено</div><div class="val">${eaten} ккал</div></div>`;
+  const pct = goal ? Math.min(100, (eaten/goal)*100) : 0;
+  const pb = $('calProgress');
+  pb.style.width = pct+'%';
+  pb.textContent = pct>10 ? Math.round(pct)+'%' : '';
+  pb.style.background = eaten > goal ? 'linear-gradient(90deg,#fc8181,#e53e3e)' : 'linear-gradient(90deg,var(--success),#38a169)';
+  const meals = data.meals.filter(m=>m.date===date).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  $('calList').innerHTML = meals.length
+    ? `<table><thead><tr><th>Блюдо</th><th>Время</th><th>ккал</th><th></th></tr></thead>
+       <tbody>${meals.map(m=>`<tr><td>${escapeHtml(m.name)}</td><td>${m.time||''}</td><td><b>${m.kcal}</b></td>
+       <td style="text-align:right"><button class="del" onclick="deleteMeal('${m.id}')">✕</button></td></tr>`).join('')}</tbody></table>`
+    : '<div class="empty">Пока нет записей за этот день</div>';
+}
+function renderCharts(){
+  if($('tab-dashboard').classList.contains('active')){
+    const days = dashRange==='all' ? null : parseInt(dashRange);
+    let w = data.weights;
+    if(days){
+      const from = new Date(); from.setDate(from.getDate()-days);
+      const fromISO = from.toISOString().slice(0,10);
+      w = w.filter(e=>e.date>=fromISO);
+    }
+    drawLineChart($('dashChart'), w.map(e=>({x:fmtDate(e.date), y:e.weight})), {goal:data.profile.target, emptyText:'Добавьте взвешивания'});
+  }
+  if($('tab-weight').classList.contains('active')){
+    drawLineChart($('weightChart'), data.weights.map(e=>({x:fmtDate(e.date), y:e.weight})), {goal:data.profile.target});
+  }
+  if($('tab-measure').classList.contains('active')){
+    const pts = data.measurements.filter(m=>m[measureMetric]!=null).map(m=>({x:fmtDate(m.date), y:m[measureMetric]}));
+    drawLineChart($('measureChart'), pts, {emptyText:'Нет замеров'});
+  }
+  if($('tab-calories').classList.contains('active')){
+    const bars = [], goal = data.profile.calGoal || calcTDEE();
+    for(let i=6;i>=0;i--){
+      const d = new Date(); d.setDate(d.getDate()-i);
+      const iso = d.toISOString().slice(0,10);
+      const lbl = d.toLocaleDateString('ru-RU',{weekday:'short'});
+      bars.push({label:lbl, value:kcalForDate(iso)});
+    }
+    drawBarChart($('calChart'), bars, {goal});
+  }
+}
+function redrawAll(){ renderCharts(); }
+function renderProfileFields(){
+  const p = data.profile;
+  $('sStart').value = p.start ?? '';
+  $('sTarget').value = p.target ?? '';
+  $('sHeight').value = p.height ?? '';
+  $('sAge').value = p.age ?? '';
+  $('sGender').value = p.gender || 'f';
+  $('sActivity').value = p.activity || 1.375;
+  $('notifTime').value = data.settings.notifTime || '09:00';
+  $('fbConfig').value = data.sync.config ? JSON.stringify(data.sync.config) : '';
+  $('llmPreset').value = data.llm.preset || 'openai';
+  $('llmEndpoint').value = data.llm.endpoint || '';
+  $('llmModel').value = data.llm.model || '';
+  $('llmKey').value = data.llm.key || '';
+  const bmr = calcBMR(), tdee = calcTDEE();
+  if(bmr && tdee){
+    $('bmrInfo').innerHTML = `
+      BMR: <b>${Math.round(bmr)} ккал</b><br>
+      TDEE (${ACTIVITY_LABELS[p.activity]||''}): <b>${Math.round(tdee)} ккал</b><br>
+      Для похудения (−500): <b style="color:var(--success)">${Math.round(tdee-500)} ккал/день</b>
+    `;
+  } else {
+    $('bmrInfo').textContent = 'Заполните вес, рост и возраст для расчёта нормы.';
+  }
+  updateSyncStatus(); updateNotifStatus(); renderLLMStatus();
+}
+function renderAll(){
+  renderDashboard(); renderWeight(); renderMeasurements(); renderCalories();
+  renderProfileFields(); renderAI(); renderCharts();
+}
+
+function updateNotifStatus(){
+  const dot = $('notifDot'), txt = $('notifText');
+  if(!('Notification' in window)){ dot.className='dot err'; txt.textContent='Не поддерживается'; return; }
+  const perm = Notification.permission;
+  if(perm === 'granted'){ dot.className='dot on'; txt.textContent = data.settings.notifEnabled ? `Включено · в ${data.settings.notifTime}` : 'Разрешение есть, выключено'; }
+  else if(perm === 'denied'){ dot.className='dot err'; txt.textContent='Запрещено в браузере'; }
+  else { dot.className='dot'; txt.textContent='Не запрошено'; }
+  $('notifToggleBtn').textContent = data.settings.notifEnabled ? '🔕 Выключить' : '🔔 Включить';
+}
+async function requestNotif(){
+  if(!('Notification' in window)) return toast('Не поддерживается','err');
+  const perm = await Notification.requestPermission();
+  updateNotifStatus();
+  if(perm === 'granted') toast('Разрешено','ok');
+}
+function toggleNotif(){
+  if(Notification.permission !== 'granted') return requestNotif();
+  data.settings.notifEnabled = !data.settings.notifEnabled;
+  data.settings.notifTime = $('notifTime').value || '09:00';
+  save(); updateNotifStatus();
+  toast(data.settings.notifEnabled ? 'Включено' : 'Выключено','ok');
+}
+$('notifTime').addEventListener('change', ()=>{
+  data.settings.notifTime = $('notifTime').value || '09:00';
+  save(); updateNotifStatus();
+});
+function checkNotification(){
+  if(!data.settings.notifEnabled) return;
+  if(Notification.permission !== 'granted') return;
+  const now = new Date();
+  const [h,m] = (data.settings.notifTime||'09:00').split(':').map(Number);
+  const target = new Date(); target.setHours(h,m,0,0);
+  const today = todayISO();
+  if(now >= target && data.settings.lastNotif !== today){
+    if(!data.weights.some(e=>e.date===today)){
+      new Notification('FitTrack', {body:'Не забудьте записать вес сегодня 💪'});
+    }
+    data.settings.lastNotif = today; save();
+  }
+}
+setInterval(checkNotification, 60000);
+
+let fbApp = null, fbAuth = null, fbDb = null, fbUser = null, syncInFlight = false;
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s);}); }
+async function ensureFirebaseSDK(){
+  if(window.firebase && firebase.firestore) return;
+  await loadScript('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
+  await loadScript('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js');
+  await loadScript('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js');
+}
+function setSyncStatus(state, text){ $('syncDot').className = 'dot ' + (state||''); $('syncText').textContent = text; }
+function updateSyncStatus(){
+  if(fbUser) setSyncStatus('on', `Подключено: ${fbUser.email || fbUser.uid}`);
+  else if(data.sync.config) setSyncStatus('', 'Настроено, вход не выполнен');
+  else setSyncStatus('', 'Не подключено');
+}
+async function fbLogin(){
+  const raw = $('fbConfig').value.trim(), email = $('fbEmail').value.trim(), pass = $('fbPass').value;
+  if(!raw) return toast('Вставьте firebaseConfig','err');
+  if(!email || pass.length<6) return toast('Email и пароль (мин. 6)','err');
+  let config;
+  try{ config = JSON.parse(raw.replace(/^const\s+\w+\s*=\s*/,'').replace(/;\s*$/,'')); }
+  catch(e){ return toast('Неверный JSON','err'); }
+  if(!config.apiKey || !config.projectId) return toast('Нет apiKey/projectId','err');
+  try{
+    setSyncStatus('sync','Подключение…');
+    await ensureFirebaseSDK();
+    if(!fbApp) fbApp = firebase.initializeApp(config);
+    fbAuth = firebase.auth(); fbDb = firebase.firestore();
+    try{ await fbAuth.signInWithEmailAndPassword(email, pass); }
+    catch(e){
+      if(e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential'){
+        await fbAuth.createUserWithEmailAndPassword(email, pass);
+      } else throw e;
+    }
+    fbUser = fbAuth.currentUser;
+    data.sync.config = config; data.sync.email = email; data.sync.uid = fbUser.uid;
+    save(true); updateSyncStatus();
+    await syncPull(); toast('Синхронизировано','ok');
+  }catch(e){ console.error(e); setSyncStatus('err', 'Ошибка: '+(e.message||e.code)); toast('Ошибка','err'); }
+}
+function fbLogout(){ if(fbAuth) fbAuth.signOut(); fbUser = null; updateSyncStatus(); toast('Вышли'); }
+function scheduleSync(){ if(!fbUser || !fbDb || syncInFlight) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncPush, 1500); }
+async function syncPush(){
+  if(!fbUser || !fbDb || syncInFlight) return;
+  syncInFlight = true; setSyncStatus('sync','Сохранение…');
+  try{
+    const payload = JSON.parse(JSON.stringify(data));
+    delete payload.sync.config; delete payload.llm.key;
+    payload.sync.uid = fbUser.uid;
+    payload.meta.updatedAt = Date.now();
+    await fbDb.collection('users').doc(fbUser.uid).set(payload, {merge:true});
+    data.sync.lastSync = Date.now();
+    localStorage.setItem(KEY, JSON.stringify(data));
+    setSyncStatus('on','Синхронизировано ✓');
+    setTimeout(updateSyncStatus, 1800);
+  }catch(e){ setSyncStatus('err','Ошибка сохранения'); }
+  syncInFlight = false;
+}
+async function syncPull(){
+  if(!fbUser || !fbDb) return;
+  try{
+    const doc = await fbDb.collection('users').doc(fbUser.uid).get();
+    if(doc.exists){
+      const remote = doc.data();
+      const localCfg = data.sync.config, localUid = data.sync.uid, localEmail = data.sync.email;
+      const localLLM = data.llm;
+      data = Object.assign(emptyData(), remote);
+      data.sync.config = localCfg; data.sync.uid = localUid; data.sync.email = localEmail;
+      data.llm = localLLM;
+      data.profile = Object.assign(emptyData().profile, remote.profile||{});
+      data.settings = Object.assign(emptyData().settings, remote.settings||{});
+      localStorage.setItem(KEY, JSON.stringify(data));
+      renderAll(); applyTheme();
+    } else await syncPush();
+  }catch(e){ console.error(e); }
+}
+(async function autoConnect(){
+  if(data.sync.config && data.sync.email){
+    try{
+      await ensureFirebaseSDK();
+      if(!fbApp) fbApp = firebase.initializeApp(data.sync.config);
+      fbAuth = firebase.auth(); fbDb = firebase.firestore();
+      await new Promise(res=> fbAuth.onAuthStateChanged(u=>{ fbUser=u; res(); }));
+      if(fbUser) await syncPull();
+      updateSyncStatus();
+    }catch(e){ console.warn(e); }
+  }
+})();
+
+function exportData(){
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `fittrack-${todayISO()}.json`; a.click();
+  URL.revokeObjectURL(url); toast('Сохранено','ok');
+}
+function importData(ev){
+  const file = ev.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try{
+      const obj = JSON.parse(e.target.result);
+      if(!obj || typeof obj !== 'object' || !Array.isArray(obj.weights)) throw new Error();
+      if(!confirm('Заменить текущие данные?')) return;
+      const keep = {sync:data.sync, llm:data.llm};
+      data = Object.assign(emptyData(), obj);
+      data.sync = keep.sync; data.llm = keep.llm;
+      data.profile = Object.assign(emptyData().profile, obj.profile||{});
+      data.settings = Object.assign(emptyData().settings, obj.settings||{});
+      save(); applyTheme(); renderAll(); toast('Загружено','ok');
+    }catch(e){ toast('Неверный файл','err'); }
+  };
+  r.readAsText(file); ev.target.value = '';
+}
+function clearAll(){
+  if(!confirm('Удалить ВСЕ данные?')) return;
+  if(!confirm('Точно? Необратимо.')) return;
+  const keep = {sync:data.sync, llm:data.llm};
+  data = emptyData(); data.sync = keep.sync; data.llm = keep.llm;
+  save(); applyTheme(); renderAll(); toast('Удалено');
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; $('installBtn').hidden = false; });
+$('installBtn').addEventListener('click', async ()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt(); await deferredPrompt.userChoice;
+  deferredPrompt = null; $('installBtn').hidden = true;
+});
+window.addEventListener('appinstalled', ()=> toast('Установлено','ok'));
+
+document.querySelectorAll('#rangeChips .chip').forEach(c=>{
+  c.addEventListener('click', ()=>{
+    document.querySelectorAll('#rangeChips .chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    dashRange = c.dataset.range;
+    $('dashRange').textContent = dashRange==='all' ? 'все время' : dashRange+' дн.';
+    renderCharts();
+  });
+});
+document.querySelectorAll('#metricChips .chip').forEach(c=>{
+  c.addEventListener('click', ()=>{
+    document.querySelectorAll('#metricChips .chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    measureMetric = c.dataset.metric;
+    renderCharts();
+  });
+});
+$('cDate').addEventListener('change', renderCalories);
+$('cName').addEventListener('keydown', e=>{ if(e.key==='Enter') $('cKcal').focus(); });
+$('cKcal').addEventListener('keydown', e=>{ if(e.key==='Enter') addMeal(); });
+$('quickWeight').addEventListener('keydown', e=>{ if(e.key==='Enter') quickAddWeight(); });
+['sStart','sTarget','sHeight','sAge','sGender','sActivity'].forEach(id=>{
+  $(id).addEventListener('change', saveProfile);
+});
+window.addEventListener('resize', ()=>renderCharts());
+
+load();
+applyTheme();
+$('wDate').value = todayISO();
+$('mDate').value = todayISO();
+$('cDate').value = todayISO();
+renderAll();
+setTimeout(checkNotification, 3000);
+</script>
+<script src="water.js"></script>
+<script src="extras.js"></script>
+</body>
+</html>
