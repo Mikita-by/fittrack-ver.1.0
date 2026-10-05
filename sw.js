@@ -19,8 +19,6 @@ self.addEventListener('fetch', e => {
   const { request } = e;
   if(request.method !== 'GET') return;
   const url = new URL(request.url);
-
-  // Не кешируем API
   if(url.hostname.includes('firebase') ||
      url.hostname.includes('googleapis') ||
      url.hostname.includes('gstatic') ||
@@ -30,14 +28,10 @@ self.addEventListener('fetch', e => {
      url.hostname.includes('deepseek')){
     return;
   }
-
-  // Навигация — сеть, fallback на кеш
   if(request.mode === 'navigate'){
     e.respondWith(fetch(request).catch(() => caches.match('./index.html')));
     return;
   }
-
-  // Cache-first с обновлением
   e.respondWith(
     caches.match(request).then(cached => {
       const fetching = fetch(request).then(resp => {
